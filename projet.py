@@ -58,12 +58,11 @@ print("Taille du corpus global : ", len(docs))
 
 from Document import Document
 import datetime
-
-id2doc = {}  # Dictionnaire pour stocker les documents avec leurs identifiants
-
+# Dictionnaire pour stocker les documents avec leurs identifiants
+id2doc = {}  
+# Initialiser un compteur d'identifiants
+id_counter = 1  
 # Parcourir les documents bruts et créer des instances de la classe Document
-id_counter = 1  # Initialiser un compteur d'identifiants
-
 for nature, doc in docs_bruts:
     if nature == "ArXiv": 
         # On enlève les retours à la ligne
@@ -98,30 +97,6 @@ for nature, doc in docs_bruts:
         id_counter += 1
 
 print("Taille de la collection id2doc : ", len(id2doc))
-print(id2doc)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #####################################
 # Partie 2 : sauvegarde des données #
