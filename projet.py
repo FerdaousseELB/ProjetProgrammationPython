@@ -123,6 +123,31 @@ for nature, doc in docs_bruts:
 print("Taille de la collection id2aut : ", len(id2aut))
 print("Taille de la collection id2doc : ", len(id2doc))
 
+################ 2.4 ####
+
+liste_auteurs = list(id2aut.keys())
+auteur_demande = liste_auteurs[0]
+
+auteur_analyse = id2aut[auteur_demande]
+
+# Nombre de documents produits par l'auteur
+nombre_documents = auteur_analyse.ndoc
+print(f"Nombre de documents produits par {auteur_demande} : {nombre_documents}")
+
+# Taille moyenne des documents produits par l'auteur
+if auteur_analyse.ndoc > 0:
+    taille_moyenne = sum(len(id2doc[production].texte) for production in auteur_analyse.production) / auteur_analyse.ndoc
+    print(f"Taille moyenne des documents produits par {auteur_demande} : {taille_moyenne:.2f} caractères")
+else:
+    print(f"{auteur_demande} n'a produit aucun document.")
+
+### Liste des auteurs avec plus d'un document
+auteurs_plusieurs_documents = [auteur for auteur in id2aut.values() if auteur.ndoc > 1]
+# Affichage de la liste des auteurs avec plus d'un document
+print("Auteurs avec plus d'un document :")
+for auteur in auteurs_plusieurs_documents:
+    print(f"{auteur.name} : {auteur.ndoc} documents")
+
 #####################################
 # Partie 2 : sauvegarde des données #
 #####################################
