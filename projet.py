@@ -9,7 +9,7 @@ import praw
 # Identification
 reddit = praw.Reddit(client_id='KTdgvYo7sGyiNb02hQZWJQ', client_secret='wTyymqM0ysjUrLrK7nkLMZHwq1ERlg', user_agent='ferdaousse')
 # Requête
-posts = reddit.subreddit('python').hot(limit=100)
+posts = reddit.subreddit('corona').hot(limit=100)
 # Récupération du texte
 docs = []
 docs_bruts = []
@@ -29,7 +29,7 @@ import urllib, urllib.request
 import xmltodict
 
 # Paramètres
-query_terms = ["python"]
+query_terms = ["corona"]
 max_results = 100
 textes_Arvix=[]
 # Requête
@@ -49,6 +49,79 @@ for i, entry in enumerate(data["feed"]["entry"]):
 print("Taille du corpus ARXIV : ", len(textes_Arvix))
 docs = textes_Arvix + docs	
 print("Taille du corpus global : ", len(docs))
+
+#####################################
+# Partie 1 : la classe Document     #
+#####################################
+
+################ TD4 : 1.3 ##########
+
+from Document import Document
+import datetime
+
+id2doc = {}  # Dictionnaire pour stocker les documents avec leurs identifiants
+
+# Parcourir les documents bruts et créer des instances de la classe Document
+id_counter = 1  # Initialiser un compteur d'identifiants
+
+for nature, doc in docs_bruts:
+    if nature == "ArXiv": 
+        # On enlève les retours à la ligne
+        titre = doc["title"].replace('\n', '')  
+        try:
+            # On fait une liste d'auteurs, séparés par une virgule
+            authors = ", ".join([a["name"] for a in doc["author"]])  
+        except:
+            # Si l'auteur est seul, pas besoin de liste
+            authors = doc["author"]["name"] 
+        # On enlève les retours à la ligne 
+        summary = doc["summary"].replace("\n", "")  
+        # Formatage de la date en année/mois/jour avec librairie datetime
+        date = datetime.datetime.strptime(doc["published"], "%Y-%m-%dT%H:%M:%SZ").strftime("%Y/%m/%d")
+        # Création du Document
+        doc_classe = Document(titre, authors, date, doc["id"], summary)
+        # Ajout du Document à la collection avec un identifiant unique
+        id2doc[id_counter] = doc_classe
+        id_counter += 1
+
+    elif nature == "Reddit":
+        # On enlève les retours à la ligne
+        titre = doc.title.replace("\n", '')
+        auteur = str(doc.author)
+        date = datetime.datetime.fromtimestamp(doc.created).strftime("%Y/%m/%d")
+        url = str(doc.url)
+        texte = doc.selftext.replace("\n", "")
+        # Création du Document
+        doc_classe = Document(titre, auteur, date, url, texte)
+        # Ajout du Document à la collection avec un identifiant unique
+        id2doc[id_counter] = doc_classe
+        id_counter += 1
+
+print("Taille de la collection id2doc : ", len(id2doc))
+print(id2doc)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #####################################
 # Partie 2 : sauvegarde des données #
