@@ -54,18 +54,32 @@ print("Taille du corpus global : ", len(docs))
 # Partie 1 : la classe Document     #
 #####################################
 
-################ TD4 : 1.3 ##########
+################ TD4 : 1.3 & 2.3 ####
 
 from Document import Document
+from Author import Author
 import datetime
 # Dictionnaire pour stocker les documents avec leurs identifiants
 id2doc = {}  
 # Initialiser un compteur d'identifiants
 id_counter = 1  
+# Dictionnaire pour stocker les auteurs avec leurs noms
+id2aut = {}  
 # Parcourir les documents bruts et créer des instances de la classe Document
 for nature, doc in docs_bruts:
-    if nature == "ArXiv": 
-        # On enlève les retours à la ligne
+    if nature == "ArXiv":
+        # Gestion des auteurs
+        for author_data in doc["author"]:
+            author_name = author_data["name"]            
+            # Vérifier si l'auteur est déjà connu
+            if author_name not in id2aut:
+                # Si l'auteur n'est pas connu, créer une instance de la classe Author
+                author_instance = Author(author_name)
+                id2aut[author_name] = author_instance
+            # Ajouter la production à l'auteur
+            id2aut[author_name].add(id_counter) 
+        # Gestion des documents
+		# On enlève les retours à la ligne
         titre = doc["title"].replace('\n', '')  
         try:
             # On fait une liste d'auteurs, séparés par une virgule
@@ -84,7 +98,17 @@ for nature, doc in docs_bruts:
         id_counter += 1
 
     elif nature == "Reddit":
-        # On enlève les retours à la ligne
+        # Gestion des auteurs
+        author_name = str(doc.author)
+        # Vérifier si l'auteur est déjà connu
+        if author_name not in id2aut:
+            # Si l'auteur n'est pas connu, créer une instance de la classe Author
+            author_instance = Author(author_name)
+            id2aut[author_name] = author_instance
+        # Ajouter la production à l'auteur
+        id2aut[author_name].add(id_counter)
+        # Gestion des documents
+		# On enlève les retours à la ligne
         titre = doc.title.replace("\n", '')
         auteur = str(doc.author)
         date = datetime.datetime.fromtimestamp(doc.created).strftime("%Y/%m/%d")
@@ -96,6 +120,7 @@ for nature, doc in docs_bruts:
         id2doc[id_counter] = doc_classe
         id_counter += 1
 
+print("Taille de la collection id2aut : ", len(id2aut))
 print("Taille de la collection id2doc : ", len(id2doc))
 
 #####################################
