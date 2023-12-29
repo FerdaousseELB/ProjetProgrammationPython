@@ -69,8 +69,21 @@ id2aut = {}
 for nature, doc in docs_bruts:
     if nature == "ArXiv":
         # Gestion des auteurs
-        for author_data in doc["author"]:
-            author_name = author_data["name"]            
+        authors_data = doc.get("author", [])
+        if isinstance(authors_data, list):
+            # Si c'est une liste d'auteurs
+            for author_data in authors_data:
+                author_name = author_data.get("name", "")
+                # Vérifier si l'auteur est déjà connu
+                if author_name not in id2aut:
+                    # Si l'auteur n'est pas connu, créer une instance de la classe Author
+                    author_instance = Author(author_name)
+                    id2aut[author_name] = author_instance
+                # Ajouter la production à l'auteur
+                id2aut[author_name].add(id_counter)
+        elif isinstance(authors_data, dict):
+            # Si c'est un seul auteur
+            author_name = authors_data.get("name", "")
             # Vérifier si l'auteur est déjà connu
             if author_name not in id2aut:
                 # Si l'auteur n'est pas connu, créer une instance de la classe Author
