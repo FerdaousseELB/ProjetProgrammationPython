@@ -5,6 +5,7 @@ from ArxivDocument import ArxivDocument
 import re
 import pandas as pd
 from collections import Counter
+from collections import defaultdict
 
 def singleton(class_):
     instances = {}
@@ -175,4 +176,40 @@ class Corpus:
         print("Vocabulaire construit :")
         for mot in self.vocabulaire:
             print(mot)
+
+    def construire_tableau_frequences(self):
+        #Construire un tableau de fréquences pour chaque mot du vocabulaire.
+        if not hasattr(self, 'vocabulaire'):
+            # Construire le vocabulaire si ce n'est pas encore fait
+            self.construire_vocabulaire()
+
+        if not self.all_text:
+            # Construire la chaîne unique si elle n'a pas encore été construite
+            self.build_all_text()
+
+        cleaned_text = self.nettoyer_texte(self.all_text)
+
+        # Utiliser la fonction Counter pour compter les occurrences de chaque mot dans le vocabulaire
+        freq = dict(Counter(cleaned_text))
+
+        # Calculer le document frequency pour chaque mot
+        doc_freq = defaultdict(int)
+        for mot in self.vocabulaire:
+            for doc in self.id2doc.values():
+                if mot in doc.texte.lower():
+                    doc_freq[mot] += 1
+
+        # Ajouter une colonne 'Document Frequency' au tableau de fréquences
+        self.tableau_frequences = pd.DataFrame(list(freq.items()), columns=['Mot', 'Fréquence'])
+        self.tableau_frequences['Document Frequency'] = self.tableau_frequences['Mot'].apply(lambda mot: doc_freq[mot])
+
+    def afficher_tableau_frequences(self):
+        #Afficher le tableau de fréquences construit.
+        if not hasattr(self, 'tableau_frequences'):
+            # Construire le tableau de fréquences si ce n'est pas encore fait
+            self.construire_tableau_frequences()
+
+        print("Tableau de fréquences :")
+        print(self.tableau_frequences)
+
 
