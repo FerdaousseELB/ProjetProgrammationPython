@@ -8,6 +8,7 @@ from collections import Counter
 from collections import defaultdict
 from scipy.sparse import csr_matrix
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 def singleton(class_):
     instances = {}
@@ -299,3 +300,25 @@ class Corpus:
 
         print("Matrice de Term Frequency (TF) :")
         print(self.mat_TF)
+    
+    def construire_matrice_TF_IDF(self):
+        #Construire la matrice TF-IDF.
+        if not hasattr(self, 'vocab'):
+            # Construire le dictionnaire vocab si ce n'est pas encore fait
+            self.construire_vocab()
+
+        # Extraire les textes des documents
+        textes = [doc.texte.lower() for doc in self.id2doc.values()]
+
+        # Utiliser TfidfVectorizer pour calculer la matrice TF-IDF
+        vectorizer = TfidfVectorizer(vocabulary=self.vocabulaire)
+        self.mat_TF_IDF = vectorizer.fit_transform(textes)
+
+    def afficher_matrice_TF_IDF(self):
+        #Afficher la matrice TF-IDF.
+        if not hasattr(self, 'mat_TF_IDF'):
+            # Construire la matrice TF-IDF si ce n'est pas encore fait
+            self.construire_matrice_TF_IDF()
+
+        print("Matrice TF-IDF :")
+        print(self.mat_TF_IDF)
