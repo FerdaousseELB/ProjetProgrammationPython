@@ -212,4 +212,42 @@ class Corpus:
         print("Tableau de fréquences :")
         print(self.tableau_frequences)
 
+    def construire_vocab(self):
+        #Construire le dictionnaire vocab.
+        if not hasattr(self, 'vocabulaire'):
+            # Construire le vocabulaire si ce n'est pas encore fait
+            self.construire_vocabulaire()
+
+        # Triez les mots par ordre alphabétique
+        vocab_list = sorted(list(self.vocabulaire))
+
+        # Construire le dictionnaire vocab
+        self.vocab = {}
+        for idx, mot in enumerate(vocab_list):
+            # Identifier unique du mot (l'index dans la liste triée)
+            identifiant = idx + 1
+
+            # Nombre total d'occurrences du mot dans le corpus
+            nb_occurrences = sum(1 for doc in self.id2doc.values() if mot in doc.texte.lower())
+
+            # Créer le sous-dictionnaire pour le mot
+            info_mot = {
+                'Identifiant': identifiant,
+                'Nombre total d\'occurrences': nb_occurrences
+                # Vous pouvez ajouter d'autres informations si nécessaire
+            }
+
+            # Ajouter le sous-dictionnaire au dictionnaire vocab
+            self.vocab[mot] = info_mot
+
+    def afficher_vocab(self):
+        #Afficher le dictionnaire vocab.
+        if not hasattr(self, 'vocab'):
+            # Construire le dictionnaire vocab si ce n'est pas encore fait
+            self.construire_vocab()
+
+        print("Dictionnaire vocab :")
+        for mot, info in self.vocab.items():
+            print(f"{mot}: {info}")
+
 
