@@ -155,3 +155,24 @@ class Corpus:
         for mot, frequence in mots_frequents:
             print(f"{mot}: {frequence}")
 
+    def construire_vocabulaire(self):
+        #Construire le vocabulaire à partir des documents du corpus.
+        if not self.all_text:
+            # Construire la chaîne unique si elle n'a pas encore été construite
+            self.build_all_text()
+
+        cleaned_text = self.nettoyer_texte(self.all_text)
+
+        # Construire le vocabulaire en utilisant un ensemble (set) pour éliminer les doublons
+        self.vocabulaire = set(cleaned_text)
+
+    def afficher_vocabulaire(self):
+        #Afficher le vocabulaire construit.
+        if not hasattr(self, 'vocabulaire'):
+            # Construire le vocabulaire si ce n'est pas encore fait
+            self.construire_vocabulaire()
+
+        print("Vocabulaire construit :")
+        for mot in self.vocabulaire:
+            print(mot)
+
