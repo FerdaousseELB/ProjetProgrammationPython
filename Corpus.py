@@ -6,6 +6,7 @@ import re
 import pandas as pd
 from collections import Counter
 from collections import defaultdict
+from scipy.sparse import csr_matrix
 
 def singleton(class_):
     instances = {}
@@ -249,5 +250,44 @@ class Corpus:
         print("Dictionnaire vocab :")
         for mot, info in self.vocab.items():
             print(f"{mot}: {info}")
+
+    def construire_matrice_TF(self):
+        #Construire la matrice de Term Frequency (TF).
+        if not hasattr(self, 'vocab'):
+            # Construire le dictionnaire vocab si ce n'est pas encore fait
+            self.construire_vocab()
+
+        # Initialiser une liste pour stocker les indices des colonnes dans la matrice
+        colonnes_indices = []
+
+        # Initialiser des listes pour stocker les valeurs des données et les indices des lignes
+        valeurs_data = []
+        indices_lignes = []
+
+        # Parcourir les documents et remplir les listes
+        for idx, doc in self.id2doc.items():
+            for mot, info in self.vocab.items():
+                if mot in doc.texte.lower():
+                    # Ajouter l'indice de colonne
+                    colonnes_indices.append(info['Identifiant'] - 1)  # Soustraire 1 pour obtenir l'indice 0-based
+
+                    # Ajouter la valeur du TF
+                    valeurs_data.append(doc.texte.lower().count(mot))
+
+                    # Ajouter l'indice de ligne
+                    indices_lignes.append(idx - 1)  # Soustraire 1 pour obtenir l'indice 0-based
+
+        # Construire la matrice de Term Frequency (TF) avec sparse.csr_matrix
+        self.mat_TF = csr_matrix((valeurs_data, (indices_lignes, colonnes_indices)),
+                                 shape=(len(self.id2doc), len(self.vocab)))
+
+    def afficher_matrice_TF(self):
+        #Afficher la matrice de Term Frequency (TF)."""
+        if not hasattr(self, 'mat_TF'):
+            # Construire la matrice de Term Frequency (TF) si ce n'est pas encore fait
+            self.construire_matrice_TF()
+
+        print("Matrice de Term Frequency (TF) :")
+        print(self.mat_TF)
 
 
