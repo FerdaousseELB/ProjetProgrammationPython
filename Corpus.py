@@ -3,6 +3,7 @@ from Document import Document
 from RedditDocument import RedditDocument
 from ArxivDocument import ArxivDocument
 import re
+import pandas as pd
 
 def singleton(class_):
     instances = {}
@@ -80,4 +81,42 @@ class Corpus:
             print(f"Occurrences trouvées pour le mot-clé '{keyword}':")
             for match in matches:
                 print(match)
+    
+    def concorde(self, expression, context_size=20):
+        #Construire un concordancier pour une expression donnée avec un contexte fixe.
+        if not self.all_text:
+            # Construire la chaîne unique si elle n'a pas encore été construite
+            self.build_all_text()
+
+        # Utiliser re.finditer pour trouver toutes les occurrences de l'expression dans l'ensemble du texte
+        matches = list(re.finditer(fr'\b{re.escape(expression)}\b', self.all_text, flags=re.IGNORECASE))
+
+        if not matches:
+            print(f"Aucune occurrence trouvée pour l'expression '{expression}'.")
+            return
+
+        # Construire le tableau pour stocker les résultats
+        concordance_data = {
+            'Contexte Gauche': [],
+            'Motif Trouvé': [],
+            'Contexte Droit': []
+        }
+
+        for match in matches:
+            # Extraire le contexte gauche et droit autour de l'expression
+            start_idx = max(0, match.start() - context_size)
+            end_idx = min(len(self.all_text), match.end() + context_size)
+            left_context = '...' + self.all_text[start_idx:match.start()].strip()
+            right_context = self.all_text[match.end():end_idx].strip() + '...'
+
+            # Ajouter les résultats au tableau
+            concordance_data['Contexte Gauche'].append(left_context)
+            concordance_data['Motif Trouvé'].append(match.group())
+            concordance_data['Contexte Droit'].append(right_context)
+
+        # Créer un DataFrame pandas à partir des données
+        concordance_df = pd.DataFrame(concordance_data)
+
+        # Afficher le tableau de concordance
+        print(concordance_df)
 
