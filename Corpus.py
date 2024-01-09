@@ -4,6 +4,7 @@ from RedditDocument import RedditDocument
 from ArxivDocument import ArxivDocument
 import re
 import pandas as pd
+from collections import Counter
 
 def singleton(class_):
     instances = {}
@@ -119,4 +120,38 @@ class Corpus:
 
         # Afficher le tableau de concordance
         print(concordance_df)
+    
+    def nettoyer_texte(self, texte):
+        #Appliquer différents traitements au texte.
+        # Mise en minuscules
+        texte = texte.lower()
+
+        # Remplacement des passages à la ligne
+        texte = texte.replace('\n', ' ')
+
+        # Retrait de la ponctuation et des chiffres
+        texte = re.findall(r'[a-zA-Z]+', texte)
+
+        return texte
+    
+    def stats(self, top_n_words=10):
+        #Afficher plusieurs statistiques textuelles sur le corpus.
+        if not self.all_text:
+            # Construire la chaîne unique si elle n'a pas encore été construite
+            self.build_all_text()
+
+        cleaned_text = self.nettoyer_texte(self.all_text)
+
+        print(f"Nombre de mots dans le corpus : {len(cleaned_text)}")
+
+        # Calculer le nombre de mots différents dans le corpus
+        nombre_mots_differents = len(set(cleaned_text))
+
+        print(f"Nombre de mots différents dans le corpus : {nombre_mots_differents}")
+
+        # Afficher les n mots les plus fréquents
+        mots_frequents = Counter(cleaned_text).most_common(top_n_words)
+        print(f"\nLes {top_n_words} mots les plus fréquents dans le corpus :")
+        for mot, frequence in mots_frequents:
+            print(f"{mot}: {frequence}")
 
