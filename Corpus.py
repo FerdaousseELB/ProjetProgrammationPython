@@ -2,6 +2,7 @@ from Author import Author
 from Document import Document
 from RedditDocument import RedditDocument
 from ArxivDocument import ArxivDocument
+import re
 
 def singleton(class_):
     instances = {}
@@ -22,6 +23,8 @@ class Corpus:
         self.id2doc = {}
         self.ndoc = 0
         self.naut = 0
+        self.all_text = ""  # Variable pour stocker l'ensemble du texte concaténé
+
 
     def add(self, doc):
         if isinstance(doc, ArxivDocument):
@@ -56,3 +59,25 @@ class Corpus:
         docs = list(sorted(docs, key=lambda x: x.titre.lower()))
 
         return "\n".join(list(map(str, docs)))
+    
+    def build_all_text(self):
+        #Construire la chaîne unique à partir de l'intégralité des chaînes dans les documents.
+        all_docs = list(self.id2doc.values())
+        self.all_text = "\n".join([doc.texte for doc in all_docs])
+
+    def search(self, keyword):
+        #Rechercher le mot-clé dans l'ensemble du texte.
+        if not self.all_text:
+            # Construire la chaîne unique si elle n'a pas encore été construite
+            self.build_all_text()
+
+        # Utiliser re.findall pour trouver toutes les occurrences du mot-clé dans l'ensemble du texte
+        matches = re.findall(fr'\b{re.escape(keyword)}\b', self.all_text, flags=re.IGNORECASE)
+
+        if not matches:
+            print(f"Aucune correspondance trouvée pour le mot-clé '{keyword}'.")
+        else:
+            print(f"Occurrences trouvées pour le mot-clé '{keyword}':")
+            for match in matches:
+                print(match)
+
