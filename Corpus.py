@@ -7,6 +7,7 @@ import pandas as pd
 from collections import Counter
 from collections import defaultdict
 from scipy.sparse import csr_matrix
+import numpy as np
 
 def singleton(class_):
     instances = {}
@@ -214,32 +215,41 @@ class Corpus:
         print(self.tableau_frequences)
 
     def construire_vocab(self):
-        #Construire le dictionnaire vocab.
+        # Construire le dictionnaire vocab.
         if not hasattr(self, 'vocabulaire'):
             # Construire le vocabulaire si ce n'est pas encore fait
             self.construire_vocabulaire()
 
-        # Triez les mots par ordre alphabétique
-        vocab_list = sorted(list(self.vocabulaire))
+        # Initialiser le dictionnaire pour stocker les informations sur les mots
+        mots_info = {}
 
-        # Construire le dictionnaire vocab
-        self.vocab = {}
-        for idx, mot in enumerate(vocab_list):
-            # Identifier unique du mot (l'index dans la liste triée)
-            identifiant = idx + 1
+        # Parcourir les documents et remplir les informations sur les mots
+        for mot in self.vocabulaire:
+            # Identifier unique du mot (l'index dans le vocabulaire trié)
+            identifiant = len(mots_info) + 1
 
             # Nombre total d'occurrences du mot dans le corpus
             nb_occurrences = sum(1 for doc in self.id2doc.values() if mot in doc.texte.lower())
 
+            # Nombre total de documents contenant le mot
+            nb_documents_contenant = sum(1 for doc in self.id2doc.values() if mot in doc.texte.lower())
+
             # Créer le sous-dictionnaire pour le mot
             info_mot = {
                 'Identifiant': identifiant,
-                'Nombre total d\'occurrences': nb_occurrences
-                # Vous pouvez ajouter d'autres informations si nécessaire
+                'Nombre total d\'occurrences': nb_occurrences,
+                'Nombre total de documents contenant le mot': nb_documents_contenant
             }
 
-            # Ajouter le sous-dictionnaire au dictionnaire vocab
-            self.vocab[mot] = info_mot
+            # Ajouter le sous-dictionnaire au dictionnaire mots_info
+            mots_info[mot] = info_mot
+
+        # Triez les mots par ordre alphabétique
+        vocab_list = sorted(self.vocabulaire)
+
+        # Construire le dictionnaire vocab
+        self.vocab = {mot: mots_info[mot] for mot in vocab_list}
+
 
     def afficher_vocab(self):
         #Afficher le dictionnaire vocab.
@@ -282,12 +292,10 @@ class Corpus:
                                  shape=(len(self.id2doc), len(self.vocab)))
 
     def afficher_matrice_TF(self):
-        #Afficher la matrice de Term Frequency (TF)."""
+        #Afficher la matrice de Term Frequency (TF).
         if not hasattr(self, 'mat_TF'):
             # Construire la matrice de Term Frequency (TF) si ce n'est pas encore fait
             self.construire_matrice_TF()
 
         print("Matrice de Term Frequency (TF) :")
         print(self.mat_TF)
-
-
