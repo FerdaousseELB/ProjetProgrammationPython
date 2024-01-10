@@ -50,8 +50,8 @@ class Corpus:
         
         self.ndoc += 1
         self.id2doc[self.ndoc] = doc
-        print(f"Document ajouté au corpus : {doc}")
-        print(f"Nombre total de documents dans le corpus : {self.ndoc}")
+        #print(f"Document ajouté au corpus : {doc}")
+        #print(f"Nombre total de documents dans le corpus : {self.ndoc}")
 
     def show(self, n_docs=-1, tri="abc"):
         docs = list(self.id2doc.values())
