@@ -9,7 +9,7 @@ import praw
 # Identification
 reddit = praw.Reddit(client_id='KTdgvYo7sGyiNb02hQZWJQ', client_secret='wTyymqM0ysjUrLrK7nkLMZHwq1ERlg', user_agent='ferdaousse')
 # Requête
-posts = reddit.subreddit('corona').hot(limit=100)
+posts = reddit.subreddit('corona').hot(limit=1)
 # Récupération du texte
 docs = []
 docs_bruts = []
@@ -30,7 +30,7 @@ import xmltodict
 
 # Paramètres
 query_terms = ["corona"]
-max_results = 100
+max_results = 1
 textes_Arvix=[]
 # Requête
 url = f'http://export.arxiv.org/api/query?search_query=all:{"+".join(query_terms)}&start=0&max_results={max_results}'
@@ -41,10 +41,13 @@ data = xmltodict.parse(entries.read().decode('utf-8'))
 
 # Ajout résumés à la liste
 for i, entry in enumerate(data["feed"]["entry"]):
-	if entry["summary"] != "": # ne pas retenir les entries avec summary vide
-		textes_Arvix.append(entry["summary"].replace("\n", ""))
-		docs_bruts.append(("ArXiv", entry))
-
+    try:
+        if entry["summary"] != "":
+            textes_Arvix.append(entry["summary"].replace("\n", ""))
+            docs_bruts.append(("ArXiv", entry))
+    except TypeError as e:
+        # Gérer l'exception (par exemple, afficher un message ou ne rien faire)
+        print(f"Ignorer l'entrée {i} car elle n'a pas de champ 'summary'.")
 
 print("Taille du corpus ARXIV : ", len(textes_Arvix))
 docs = textes_Arvix + docs	
