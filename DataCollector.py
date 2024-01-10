@@ -26,5 +26,10 @@ class DataCollector:
         data = xmltodict.parse(data.read().decode('utf-8'))
 
         for i, entry in enumerate(data["feed"]["entry"]):
-            self.docs.append(entry["summary"].replace("\n", ""))
-            self.docs_bruts.append(("ArXiv", entry))
+            try:
+                if entry["summary"] != "":
+                    self.docs.append(entry["summary"].replace("\n", ""))
+                    self.docs_bruts.append(("ArXiv", entry))
+            except TypeError as e:
+                # Gérer l'exception (par exemple, afficher un message ou ne rien faire)
+                print(f"Ignorer l'entrée {i} car elle n'a pas de champ 'summary'.")
